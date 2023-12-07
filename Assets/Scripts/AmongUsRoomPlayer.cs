@@ -5,8 +5,31 @@ using Mirror;
 
 public class AmongUsRoomPlayer : NetworkRoomPlayer
 {
+    private static AmongUsRoomPlayer myRoomPlayer;
+
+    public static AmongUsRoomPlayer MyRoomPlayer
+    {
+        get
+        {
+            if(myRoomPlayer == null)
+            {
+                var players = FindObjectOfType<AmongUsRoomPlayer>();
+                foreach(var player in players)
+                {
+                    if(player.isOwned)
+                    {
+                        myRoomPlayer = player;
+                    }
+                }
+            }
+            return myRoomPlayer;
+        }
+    }
+    
     [SyncVar]
     public EPlayerColor playerColor;
+
+    public CharacterMover lobbyPlayerCharacter;
 
     public void Start() 
     {
@@ -15,6 +38,12 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
         {
             SpawnLobbyPlayerCharacter();
         }
+    }
+
+    [Command] //어튜리뷰트 사용 시, 함수명 앞에 Cmd 붙여야 함
+    public void CmdSetPlayerColor(EPlayerColor color)
+    {
+        lobbyPlayerCharacter.playerColor = color;
     }
 
     private void SpawnLobbyPlayerCharacter()
@@ -47,6 +76,7 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
 
         var playerCharacter = Instantiate(AmongUsRoomManager.singleton.spawnPrefabs[0], spawnPos, Quaternion.identity).GetComponent<LobbyCharacterMover>();
         NetworkServer.Spawn(playerCharacter.gameObject, connectionToClient);
+        playerCharacter.ownerNetId = netId;
         playerCharacter.playerColor = color;
     }
 }
