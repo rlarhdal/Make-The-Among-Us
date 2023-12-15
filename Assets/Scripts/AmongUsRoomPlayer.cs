@@ -13,7 +13,7 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
         {
             if(myRoomPlayer == null)
             {
-                var players = FindObjectOfType<AmongUsRoomPlayer>();
+                var players = FindObjectsOfType<AmongUsRoomPlayer>();
                 foreach(var player in players)
                 {
                     if(player.isOwned)
@@ -25,9 +25,13 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
             return myRoomPlayer;
         }
     }
-    
-    [SyncVar]
+
+    [SyncVar(hook = nameof(SetPlayerColor_Hook))]
     public EPlayerColor playerColor;
+    public void SetPlayerColor_Hook(EPlayerColor oldColor, EPlayerColor newColor)
+    {
+        LobbyUIManager.Instance.CustomizeUI.UpdateSelectColorButton(newColor);
+    }
 
     public CharacterMover lobbyPlayerCharacter;
 
@@ -40,9 +44,18 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
         }
     }
 
+    private void OnDestroy() 
+    {
+        if(LobbyUIManager.Instance != null)
+        {
+            LobbyUIManager.Instance.CustomizeUI.UpdateUnSelectColorButton(playerColor);
+        }
+    }
+
     [Command] //어튜리뷰트 사용 시, 함수명 앞에 Cmd 붙여야 함
     public void CmdSetPlayerColor(EPlayerColor color)
     {
+        playerColor = color;
         lobbyPlayerCharacter.playerColor = color;
     }
 
@@ -70,11 +83,14 @@ public class AmongUsRoomPlayer : NetworkRoomPlayer
                 break;
             }
         }
+        playerColor = color;
 
-
-        Vector3 spawnPos = FindObjectOfType<SpawnPositions>().GetSpawnPosition();
+        var spawnPositions = FindObjectOfType<SpawnPositions>();
+        int index = spawnPositions.Index;
+        Vector3 spawnPos = spawnPositions.GetSpawnPosition();
 
         var playerCharacter = Instantiate(AmongUsRoomManager.singleton.spawnPrefabs[0], spawnPos, Quaternion.identity).GetComponent<LobbyCharacterMover>();
+        playerCharacter.transform.localScale = index < 5 ? new Vector3(0.5f, 0.5f, 1f) : new Vector3(-0.5f, 0.5f, 1f);
         NetworkServer.Spawn(playerCharacter.gameObject, connectionToClient);
         playerCharacter.ownerNetId = netId;
         playerCharacter.playerColor = color;

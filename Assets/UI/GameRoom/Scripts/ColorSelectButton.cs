@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class ColorSelectButton : MonoBehaviour
 {
-    [SerializeField] private GameObject x;
-    public bool isInteratable = true;
+    [SerializeField] 
+    private GameObject x;
+    public bool isInteractable = true;
 
-    public void SetInteractable(bool isInteratable)
+    public void SetInteractable(bool isInteractable)
     {
-        this.isInteratable = isInteratable;
-        x.SetActive(!isInteratable);
+        this.isInteractable = isInteractable;
+        x.SetActive(!isInteractable);
     }
 }

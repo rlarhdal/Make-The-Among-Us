@@ -9,7 +9,7 @@ public class LobbyCharacterMover : CharacterMover
     public uint ownerNetId;
     public void SetOwnedNetId_Hook(uint _, uint newOwnerId)
     {
-        var players = FindObjectOfType<AmongUsRoomPlayer>();
+        var players = FindObjectsOfType<AmongUsRoomPlayer>();
         foreach(var player in players)
         {
             if(newOwnerId == player.netId)
@@ -23,7 +23,7 @@ public class LobbyCharacterMover : CharacterMover
     {
         if(isOwned)
         {
-            isMoveable = true;
+            IsMoveable = true;
         }
     }
 }

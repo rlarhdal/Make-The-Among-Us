@@ -10,7 +10,7 @@ public class CustomizeUI : MonoBehaviour
     private Image characterPrivew;
 
     [SerializeField]
-    private List<ColorSelectButton> colorSelectButtons;
+    private List<ColorSelectButton> colorSelectButtons;  
 
     // Start is called before the first frame update
     void Start()
@@ -21,10 +21,12 @@ public class CustomizeUI : MonoBehaviour
 
     private void OnEnable()
     {
+        UpadateColorButton();
+        
         var roomSlots = (NetworkManager.singleton as AmongUsRoomManager).roomSlots;
         foreach (var player in roomSlots)
         {
-            var aPlayer = player as AmongUsRoomManager;
+            var aPlayer = player as AmongUsRoomPlayer;
             if(aPlayer.isLocalPlayer)
             {
                 UpdatePriewColor(aPlayer.playerColor);
@@ -49,6 +51,16 @@ public class CustomizeUI : MonoBehaviour
         }
     }
 
+    public void UpdateSelectColorButton(EPlayerColor color)
+    {
+        colorSelectButtons[(int)color].SetInteractable(false);
+    }
+
+    public void UpdateUnSelectColorButton(EPlayerColor color)
+    {
+        colorSelectButtons[(int)color].SetInteractable(true);
+    }
+
     public void UpdatePriewColor(EPlayerColor color)
     {
         characterPrivew.material.SetColor("_PlayerColor", PlayerColor.GetColor(color));
@@ -56,10 +68,22 @@ public class CustomizeUI : MonoBehaviour
 
     public void OnClickColorButton(int index)
     {
-        if(colorSelectButtons[index].isInteratable)
+        if(colorSelectButtons[index].isInteractable)
         {
             AmongUsRoomPlayer.MyRoomPlayer.CmdSetPlayerColor((EPlayerColor)index);
             UpdatePriewColor((EPlayerColor)index);
         }
+    }
+
+    public void Open()
+    {
+        AmongUsRoomPlayer.MyRoomPlayer.lobbyPlayerCharacter.IsMoveable = false;
+        gameObject.SetActive(true);
+    }
+
+    public void Close()
+    {
+        AmongUsRoomPlayer.MyRoomPlayer.lobbyPlayerCharacter.IsMoveable = true;
+        gameObject.SetActive(false);
     }
 }
